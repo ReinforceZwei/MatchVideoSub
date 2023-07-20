@@ -1,4 +1,4 @@
-name: Build and Release WinForms App
+name: Build and Release App
 
 on:
   push:
@@ -12,16 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.0.x'
       - name: Build WinForms app
-        run: dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false MatchVideoSub.csproj
+        run: dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false MatchVideoSub/MatchVideoSub.csproj
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: MyApp
-          path: bin/Release/net6.0-windows/win-x64/publish/MatchVideoSub.exe
+          name: MatchVideoSub
+          path: MatchVideoSub/bin/Release/net6.0-windows/win-x64/publish/MatchVideoSub.exe
   release:
     needs: build
     runs-on: windows-latest
@@ -31,7 +31,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: MyApp
+          name: MatchVideoSub
           path: .
       - name: Create release
         id: create_release

@@ -1,0 +1,55 @@
+name: Build and Release WinForms App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build WinForms app
+        run: dotnet publish -c Release -r win-x64 --self-contained false --single-file MatchVideoSub.csproj
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: MyApp
+          path: bin/Release/net6.0-windows/win-x64/publish/MatchVideoSub.exe
+  release:
+    needs: build
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: MyApp
+          path: .
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./MatchVideoSub.exe
+          asset_name: MatchVideoSub.exe
+          asset_content_type: application/octet-stream

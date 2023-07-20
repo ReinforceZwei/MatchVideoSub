@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Build WinForms app
-        run: dotnet publish -c Release -r win-x64 --self-contained false --single-file MatchVideoSub.csproj
+        run: dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false MatchVideoSub.csproj
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
